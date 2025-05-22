@@ -1,50 +1,35 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { View, Text, TextInput, Button } from 'react-native';
+import { loadGroceryItems, saveGroceryItems } from '../utils/storage';
 
-type AddItemScreenProps = {
-  navigation: NativeStackNavigationProp<any>;
-};
+export default function AddItemScreen({ navigation }: any) {
+  const [name, setName] = useState('');
+  const [expiry, setExpiry] = useState('');
 
-export default function AddItemScreen({ navigation }: AddItemScreenProps) {
-  const [itemName, setItemName] = useState('');
-  const [expiryDate, setExpiryDate] = useState('');
-
-  const handleSave = () => {
-    // TODO: Add validation and save logic
+  const handleSave = async () => {
+    const existing = await loadGroceryItems();
+    const updated = [...existing, { name, expiry }];
+    await saveGroceryItems(updated);
     navigation.goBack();
   };
 
   return (
-    <View style={styles.container}>
+    <View style={{ padding: 20 }}>
       <Text>Item Name:</Text>
       <TextInput
-        style={styles.input}
+        style={{ borderWidth: 1, marginBottom: 10, padding: 8 }}
         placeholder="e.g., Milk"
-        value={itemName}
-        onChangeText={setItemName}
+        value={name}
+        onChangeText={setName}
       />
       <Text>Expiry Date:</Text>
       <TextInput
-        style={styles.input}
+        style={{ borderWidth: 1, marginBottom: 20, padding: 8 }}
         placeholder="YYYY-MM-DD"
-        value={expiryDate}
-        onChangeText={setExpiryDate}
+        value={expiry}
+        onChangeText={setExpiry}
       />
-      <Button title="Save Item" onPress={handleSave} />
+      <Button title="Save Item" onPress={handleSave} disabled={!name || !expiry} />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    padding: 20,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 4,
-    padding: 8,
-    marginBottom: 15,
-  },
-});
